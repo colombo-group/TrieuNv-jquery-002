@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Jquery002 bby TrieuNv</title>
+</head>
+<style type="text/css">
+	*{
+		padding: 0px;
+		margin: 0px;
+	}
+	#main{
+		width: 100%;
+		height: 500px;
+		border: 1px solid #bbb;
+		position: relative;
+	}
+	#c1{
+		width: 700px;
+		height: 420px;
+		left: 50%; 
+	    top: 50%;
+	    background-color: #eee;
+	    border: #f36;
+	    position: absolute;
+	    transform: translateX(-50%) translateY(-50%);
+	    overflow: hidden;
+	}
+	#slide-contain{
+		width: 8000px;
+		height: 100%;
+		background-color: #eee;
+		transition: 0.8s;
+	}
+	#slide-contain img{
+		width: 800px;
+		height: 100%;
+		float: left;
+	}
+	#option{
+		position: absolute;
+		top: 15px;
+		left: 330px;
+	}
+	.arrow{
+		top: 50%;
+		transform: translateY(-50%);
+		position: absolute;
+		width: 32px;
+		height: 64px;
+		cursor: pointer;
+		background-size: 30px 58px;
+		background-repeat: no-repeat;
+		opacity: 0.2;
+	}
+
+	#prev{
+		left: 290px;
+		background-image: url('img/prev.png');
+
+	}
+	#next{
+		right: 290px;
+		background-image: url('img/next.png');
+	}
+	.thumbnail{
+		top: 50%;
+		transform: translateY(-50%);
+		background-color: #f39;
+		position: absolute;
+		width: 250px;
+		height: 150px;
+		background-color: #eee;
+		display: none;
+		overflow: hidden;
+		opacity: 0.5;
+	}
+	.thumbnail img{
+		height: 100%;
+		width: 100%;
+
+	}
+	#imgleft{
+		left: 30px;
+	}
+	#imgright{
+		right: 30px;
+
+	}
+	ul#chose{
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		bottom: 8px;
+	}
+	ul#chose li{
+		display: inline-block;
+		background-color: #fc0;
+		border-radius: 50%;
+		width: 18px;
+		height: 18px;
+		margin: 0px 5px;
+		text-align: center;
+	}
+	ul#chose li.active{
+		background-color: #f30;
+	}
+	ul#chose li:hover{
+		background-color: #ccc;
+		cursor: pointer;
+	}
+	#chose li.selected{
+		background-color: #69f;
+		border: 3px solid #f00;
+	}
+</style>
+<body>
+<div id="main">
+	<div id="option">
+		<input id="check-thumbnail" type="checkbox" name="thumbnail" checked="checked"> thumbnail 
+		<input id="check-dot" type="checkbox" name="dot" checked="checked"> dots 
+		<select id="select">
+			<option value="0" selected="selected">slide</option>
+			<option value="1">fade</option>
+		</select>
+	</div>
+	<div id="c1">
+	<div id="slide-contain">
+<!-- 		<img src="img/slide3.jpg">
+<img src="img/slide2.jpg">
+<img src="img/slide4.jpg">
+<img src="img/slide5.jpg">
+<img src="img/slide6.jpg"> -->
+	</div>
+	</div>
+	<span class="arrow" id="prev"></span>
+	<span class="arrow" id="next"></span>
+	<div class="thumbnail" id="imgleft"></div>
+	<div class="thumbnail" id="imgright"></div>
+	<ul id="chose">
+
+	</ul>
+</div>
+</body>
+<script type="text/javascript" src="jquery-3.1.1.js"></script>
+<script type="text/javascript">
+	var listImg = ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6'];
+	var length = listImg.length;
+	var current = 0;
+	var widthImg = 800;
+	var arrow = "";
+	var slide = 0;
+	var time = null; //thoi gian nhay slide
+
+	showDefaul(listImg);
+	var imgsLeft = $("#imgleft img");
+	var imgsRight = $("#imgright img");
+	var dots = $("ul#chose li");
+
+	runSlide();
+	function showDefaul(arrayImg){
+		for (var i = 0; i < length; i++) {
+			eleCenter = '<img src="img/'+ arrayImg[i] + '.jpg">';
+			eleLeft = '<img src="img/'+ arrayImg[getPrev(i)] + '.jpg">';
+			eleRight = '<img src="img/'+ arrayImg[getNext(i)] + '.jpg">';
+			$('#slide-contain').append(eleCenter);
+			$('#imgleft').append(eleLeft);
+			$('#imgright').append(eleRight);
+			$('ul#chose').append('<li></li>');
+		}
+/*		$('#center #slides img').eq(current).show();
+		$('#center ul#chose li').eq(current).addClass('selected');
+		$('#center div#imgright img').eq(current).show();
+		$('#center div#imgleft img').eq(current).show();*/
+	}
+
+	function getPrev(index){
+		var x = index - 1;
+		if (x < 0) {
+			return length - 1;
+		}
+		return x;
+	}
+
+	function getNext(index){
+		var y = index + 1;
+		if (y >= length) {
+			return 0;
+		}
+		return y;
+	}
+	function goLeft(){
+		current = getPrev(current);
+		goImg(current)
+	}
+	function goRight(){
+		current = getNext(current);
+		goImg(current);
+	}
+	function goImg(index){
+		if (slide == 0) {
+			$('#slide-contain img').show();
+			$('#slide-contain').css('margin-left',(-1) * index * widthImg+"px");
+		}else if (slide == 1) {
+			$('#slide-contain').css('margin-left',0+"px");
+			$('#slide-contain img').unbind().hide();
+			$('#slide-contain img').eq(current).fadeIn(500);
+		}
+
+		$('.selected').removeClass('selected');
+		$('ul#chose li').eq(current).addClass('selected');
+		imgsLeft.hide();
+		imgsRight.hide();
+
+		imgsLeft.eq(current).fadeIn();
+		imgsRight.eq(current).fadeIn();
+	}
+	function runSlide(){
+
+		if (arrow == "left") {
+			time = setInterval(function(){
+				goLeft();
+			}, 1200);
+		}else{
+			time = setInterval(function(){
+				goRight();
+			}, 1200);
+		}
+	}
+	$('#prev').click(function(){
+		clearInterval(time);
+		goLeft();
+		arrow = "left";
+		runSlide();
+	});
+	$('#next').click(function(){
+		clearInterval(time);
+		goRight();
+		arrow = "right";
+		runSlide();
+	});
+	mouseArrow();
+	function mouseArrow(){
+		$('#prev').mouseenter(function(){
+			$("#imgleft").show();
+		});
+		$('#next').mouseenter(function(){
+			$("#imgright").show();
+		});
+		$('#prev').mouseleave(function(){
+			$("#imgleft").hide();
+		});
+		$('#next').mouseleave(function(){
+			$("#imgright").hide();
+		});
+	}
+	dots.click(function(){
+		current = $("li").index($(this));
+		clearInterval(time);
+		goImg(current);
+		runSlide();
+	});
+	$("#c1").mouseenter(function(){
+		clearInterval(time);
+	});
+	$("#c1").mouseleave(function(){
+
+		if (arrow == "left") {
+				goLeft();
+		}else{
+				goRight();
+		}
+		runSlide();
+	});
+	$("#option").click(function(){
+		if ($("#check-thumbnail:checked").length) {
+			mouseArrow();
+		}else{
+			$('#prev').unbind("mouseenter");
+			$('#next').unbind("mouseenter");
+		}
+		if ($("#check-dot:checked").length) {
+
+			$('ul#chose').show();
+		}else{
+			$('ul#chose').hide();
+		}
+	});
+	$("#select").change(function(){
+		slide = $(this).val();
+	});
+</script>
+</html>
